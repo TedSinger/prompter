@@ -1,10 +1,13 @@
 package main
 
+import "path/filepath"
 
 func getAbbreviations(components []string, maxLen int) []string {
     totalChars := 0
-    for _, component := range components {
-        totalChars += len(component) + 1
+    for i, component := range components {
+        if i != 0 {
+            totalChars += len(string(filepath.Separator)) + len(component)    
+        }
     }
     var charsToCut int
     if totalChars > maxLen {
