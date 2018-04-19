@@ -5,12 +5,12 @@ import (
     "fmt"
     "strings"
     "github.com/fatih/color"
+    "path/filepath"
 )
 
-func getStyles(p string) PathStyle {
-    nComponents := strings.Count(p, "/") + 1
-    styles := make(PathStyle, nComponents)
-    for i := 0; i < nComponents; i += 1 {
+func getStyles(components []string) PathStyle {
+    styles := make(PathStyle, len(components))
+    for i := 0; i < len(components); i += 1 {
         if i % 3 == 0 {
             styles[i] = []color.Attribute{color.FgRed}
         } else if i % 3 == 1 {
@@ -22,15 +22,15 @@ func getStyles(p string) PathStyle {
     return styles
 }
 
-func getPrompt(p string) string {
+func getPrompt(components []string) string {
     maxLen := getMaxPromptSize()
-    abbrs := getAbbreviations(p, maxLen)
-    styles := getStyles(p)
+    abbrs := getAbbreviations(components, maxLen)
+    styles := getStyles(abbrs)
     return applyStyle(abbrs, styles)
-
 }
 
 func main() {
     path, _ := os.Getwd()
-    fmt.Print(getPrompt(path))
+    components := strings.Split(path, string(filepath.Separator))
+    fmt.Print(getPrompt(components))
 }

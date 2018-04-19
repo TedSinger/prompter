@@ -1,37 +1,33 @@
 package main
 
-import (
-    "path/filepath"
-    "strings"
-)
+import "path/filepath"
 
-func getAbbreviations(p string, maxLen int) []string {
-    parts := strings.Split(p, string(filepath.Separator))
+func getAbbreviations(components []string, maxLen int) []string {
+    totalChars := 0
+    for i, component := range components {
+        if i != 0 {
+            totalChars += len(string(filepath.Separator)) + len(component)    
+        }
+    }
     var charsToCut int
-    if len(p) > maxLen {
-        charsToCut = len(p) - maxLen
+    if totalChars > maxLen {
+        charsToCut = totalChars - maxLen
     } else {
         charsToCut = 0
     }
-    clips := make([]int, len(parts))
-    current := ""
-    for i, part := range parts {
-        current += string(filepath.Separator) + part
+    abbrs := make([]string, len(components))
+    for i, component := range components {
         if i != 0 {
-            if charsToCut >= len(part) - 1 {
-                clips[i] = 1
-                charsToCut -= len(part) - 1
+            if charsToCut >= len(component) - 1 {
+                abbrs[i] = component[:1]
+                charsToCut -= len(component) - 1
             } else if charsToCut > 0 {
-                clips[i] = len(part) - charsToCut
+                abbrs[i] = component[:len(component) - charsToCut]
                 charsToCut = 0
             } else {
-                clips[i] = len(part)
+                abbrs[i] = component
             }
         }
-    }
-    abbrs := make([]string, len(parts))
-    for i, part := range parts {
-        abbrs[i] = part[:clips[i]]
     }
     return abbrs
 }
