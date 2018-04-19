@@ -5,7 +5,7 @@ import (
     "strings"
 )
 
-func toAbbreviations(p string, maxLen int) []string {
+func getAbbreviations(p string, maxLen int) []string {
     parts := strings.Split(p, string(filepath.Separator))
     var charsToCut int
     if len(p) > maxLen {
@@ -29,9 +29,9 @@ func toAbbreviations(p string, maxLen int) []string {
             }
         }
     }
-    ret := make([]string, len(parts))
+    abbrs := make([]string, len(parts))
     for i, part := range parts {
-        ret[i] = part[:clips[i]]
+        abbrs[i] = part[:clips[i]]
     }
-    return ret
+    return abbrs
 }

@@ -1,51 +1,27 @@
 package main
-
-
-type Style int
-type BgColor Style
-type FgColor Style
-type TextStyle Style
-
-
-const (
-    FgBlack FgColor = iota
-    FgRed FgColor = iota
-    FgGreen FgColor = iota
-    FgYellow FgColor = iota
-    FgBlue FgColor = iota
-    FgMagenta FgColor = iota
-    FgCyan FgColor = iota
-    FgWhite FgColor = iota
-    FgDefault FgColor = iota
+import (
+    "regexp"
+    "github.com/fatih/color"
 )
 
-const (
-    BgBlack BgColor = iota
-    BgRed BgColor = iota
-    BgGreen BgColor = iota
-    BgYellow BgColor = iota
-    BgBlue BgColor = iota
-    BgMagenta BgColor = iota
-    BgCyan BgColor = iota
-    BgWhite BgColor = iota
-    BgDefault BgColor = iota
-)
+type PathStyle [][]color.Attribute
 
-const (
-    Reset TextStyle = iota
-    Dim TextStyle = iota
-    Standout TextStyle = iota
-    Underscore TextStyle = iota
-    Blink TextStyle = iota
-    Reverse TextStyle = iota
-    Hidden TextStyle = iota
-)
+func explainZeroWidthEscapeCodesToGNUReadline(escapeCode string) string {
+    return "\x01" + escapeCode + "\x02"
+}
 
-func addStyle(str string, stys []Style) string {
-    begin := ""
-    for _, sty := range stys {
-        begin += getEscapeCode(sty)
+func applyStyle(abbrs []string, pathstyle PathStyle) string {
+    prompt := ""
+    var c *color.Color
+    for i, abbr := range abbrs {
+        c = color.New(pathstyle[i]...)
+        c.EnableColor()
+        if i == len(abbrs) - 1 {
+            prompt += c.Sprint(abbr)
+        } else {
+            prompt += c.Sprint(abbr) + "/"
+        }
     }
-    end := getEscapeCode(Style(Reset)) + getEscapeCode(Style(FgDefault)) + getEscapeCode(Style(BgDefault))
-    return begin + str + end
+    escapeCodeFinder := regexp.MustCompile(`\x1b\[[0-9;]+m`)
+    return escapeCodeFinder.ReplaceAllStringFunc(prompt, explainZeroWidthEscapeCodesToGNUReadline)
 }

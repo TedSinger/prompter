@@ -7,7 +7,3 @@ func getTermSize() int {
 func getMaxPromptSize() int {
     return getTermSize() / 2 - 20
 }
-
-func getEscapeCode(s Style) string {
-    return ""
-}
