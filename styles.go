@@ -6,8 +6,13 @@ import (
 
 type PathStyle [][]color.Attribute
 
-func explainZeroWidthEscapeCodesToGNUReadline(escapeCode string) string {
+func wrapWithSOHSTX(escapeCode string) string {
     return "\x01" + escapeCode + "\x02"
+}
+
+func explainZeroWidthEscapeCodesToGNUReadline(prompt string) string {
+    escapeCodeFinder := regexp.MustCompile(`\x1b\[[0-9;]+m`)
+    return escapeCodeFinder.ReplaceAllStringFunc(prompt, wrapWithSOHSTX)
 }
 
 func applyStyle(abbrs []string, pathstyle PathStyle) string {
@@ -22,6 +27,5 @@ func applyStyle(abbrs []string, pathstyle PathStyle) string {
             prompt += c.Sprint(abbr) + "/"
         }
     }
-    escapeCodeFinder := regexp.MustCompile(`\x1b\[[0-9;]+m`)
-    return escapeCodeFinder.ReplaceAllStringFunc(prompt, explainZeroWidthEscapeCodesToGNUReadline)
+    return explainZeroWidthEscapeCodesToGNUReadline(prompt)
 }
