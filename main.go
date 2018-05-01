@@ -16,7 +16,11 @@ func getStyles(components []string) PathStyle {
         } else if i % 3 == 1 {
             styles[i] = []color.Attribute{color.FgHiBlue}
         } else if i % 3 == 2 {
-            styles[i] = []color.Attribute{color.FgHiYellow, color.Underline}
+            styles[i] = []color.Attribute{color.FgHiYellow}
+        }
+        if i > 0 && isLink(strings.Join(components[:i+1], string(filepath.Separator))) {
+            // FIXME: use LSCOLORS instead of hardcoding
+            styles[i] = []color.Attribute{color.FgHiCyan, color.Bold}
         }
     }
     return styles
@@ -25,7 +29,7 @@ func getStyles(components []string) PathStyle {
 func getPrompt(components []string) string {
     maxLen := getMaxPromptSize()
     abbrs := getAbbreviations(components, maxLen)
-    styles := getStyles(abbrs)
+    styles := getStyles(components)
     return applyStyle(abbrs, styles)
 }
 
