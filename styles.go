@@ -11,7 +11,7 @@ func wrapWithSOHSTX(escapeCode string) string {
 }
 
 func explainZeroWidthEscapeCodesToGNUReadline(prompt string) string {
-    escapeCodeFinder := regexp.MustCompile(`\x1b\[[0-9;]+m`)
+    escapeCodeFinder := regexp.MustCompile(`\x1b\[[0-9;]*m`)
     return escapeCodeFinder.ReplaceAllStringFunc(prompt, wrapWithSOHSTX)
 }
 
