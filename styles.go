@@ -17,6 +17,7 @@ func explainZeroWidthEscapeCodesToGNUReadline(prompt string) string {
 
 func applyStyle(abbrs []string, pathstyle PathStyle) string {
     prompt := ""
+    // FIXME: mark shortened directories. use a different separator for them
     var c *color.Color
     for i, abbr := range abbrs {
         c = color.New(pathstyle[i]...)
