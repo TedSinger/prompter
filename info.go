@@ -3,6 +3,7 @@ package main
 import (
     "os"
     "os/exec"
+    "os/user"
     "fmt"
     "strings"
     "path/filepath"
@@ -53,4 +54,13 @@ func getPathRoot(p string, mounts []string) string {
         }
     }
     return longest
+}
+
+func startsWithUserHome(components []string) bool {
+    usr, err := user.Current()
+    if err != nil {
+        return false
+    } else {
+        return components[1] == "home" && len(components) >= 3 && components[2] == usr.Username
+    }
 }
