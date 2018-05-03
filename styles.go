@@ -15,18 +15,33 @@ func explainZeroWidthEscapeCodesToGNUReadline(prompt string) string {
     return escapeCodeFinder.ReplaceAllStringFunc(prompt, wrapWithSOHSTX)
 }
 
-func applyStyle(abbrs []string, pathstyle PathStyle) string {
+func applyStyles(s string, styles ...color.Attribute) string {
+    c := color.New(styles...)
+    c.EnableColor()
+    return c.Sprint(s)
+}
+
+func formatPath(components []string, abbrs []string, pathstyle PathStyle) string {
     prompt := ""
-    // FIXME: mark shortened directories. use a different separator for them
-    var c *color.Color
-    for i, abbr := range abbrs {
-        c = color.New(pathstyle[i]...)
-        c.EnableColor()
-        if i == len(abbrs) - 1 {
-            prompt += c.Sprint(abbr)
-        } else {
-            prompt += c.Sprint(abbr) + "/"
+    startIndex := 0
+    if startsWithUserHome(components) {
+        prompt = applyStyles("~", color.FgYellow, color.Bold)
+        if len(components) > 3 {
+            prompt += "/"
+        }
+        startIndex = 3
+    }
+
+    for i := startIndex; i < len(abbrs); i++ {
+        prompt += applyStyles(abbrs[i], pathstyle[i]...)
+        if i != len(abbrs) - 1 {
+            if abbrs[i] == components[i] {
+                prompt += "/"
+            } else {
+                prompt += applyStyles("/", color.CrossedOut)
+            }
         }
     }
+    // FIXME: only do this for bash
     return explainZeroWidthEscapeCodesToGNUReadline(prompt)
 }

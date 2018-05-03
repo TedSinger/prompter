@@ -46,7 +46,7 @@ func getPrompt(components []string) string {
     maxLen := getMaxPromptSize()
     abbrs := getAbbreviations(components, maxLen)
     styles := getStyles(components)
-    return applyStyle(abbrs, styles)
+    return formatPath(components, abbrs, styles)
 }
 
 func main() {
