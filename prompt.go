@@ -39,10 +39,8 @@ func (prompt Prompt) Format() string {
             if is_abbrd && !is_tilde {
                 ret += ApplyStyles("/", part.SlashStyle...)
             }
-        } else {
-            if !part.Shadowed || is_tilde {
-                ret += ApplyStyles("/", part.SlashStyle...)
-            }
+        } else if !part.Shadowed || is_tilde {
+            ret += ApplyStyles("/", part.SlashStyle...)
         }
     }
     return ret
