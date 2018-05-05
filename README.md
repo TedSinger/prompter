@@ -1,4 +1,4 @@
-Use `$(prompter)` as a component of your PS1 in bash. It will print your current working directory, styled to be helpful:
+Use `$(prompter)` as a component of your PS1 in the shell. It will print your current working directory, styled to be helpful:
 
    - `prompter` truncates path components as needed to keep the prompt short, relative to your terminal width
    - `prompter` highlights symlinks, mountpoints, and open write permissions
