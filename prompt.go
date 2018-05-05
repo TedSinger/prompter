@@ -30,21 +30,20 @@ func InitPrompt() Prompt {
 
 func (prompt Prompt) Format() string {
     ret := ""
-    start_idx := 0
-    for start_idx < len(prompt) && prompt[start_idx].Shadowed {
-        ret = ApplyStyles(prompt[start_idx].Abbreviation, prompt[start_idx].NameStyle...)
-        start_idx += 1
-    }
-    for idx := start_idx; idx < len(prompt); idx ++ {
-        if idx != 0 {
-            ret += ApplyStyles("/", prompt[idx - 1].SlashStyle...)
+    for idx, part := range prompt {
+        ret += ApplyStyles(part.Abbreviation, part.NameStyle...)
+        is_last := idx == len(prompt) - 1
+        is_abbrd := (part.Abbreviation != part.Name)
+        is_tilde := (part.Abbreviation == "~" && part.Shadowed)
+        if is_last {
+            if is_abbrd && !is_tilde {
+                ret += ApplyStyles("/", part.SlashStyle...)
+            }
+        } else {
+            if !part.Shadowed || is_tilde {
+                ret += ApplyStyles("/", part.SlashStyle...)
+            }
         }
-        
-        ret += ApplyStyles(prompt[idx].Abbreviation, prompt[idx].NameStyle...)
-    }
-    last_part := prompt[len(prompt) - 1]
-    if last_part.Abbreviation != last_part.Name && !last_part.Shadowed {
-        ret += ApplyStyles("/", last_part.SlashStyle...)
     }
     return ret
 }

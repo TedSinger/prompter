@@ -2,17 +2,42 @@ package main
 
 import (
     "github.com/fatih/color"
+    "os/user"
 )
 
-func ShadowHome(prompt Prompt) {
-    if StartsWithUserHome(prompt) {
-        prompt[0].Shadowed = true
-        prompt[1].Shadowed = true
-        prompt[2].Shadowed = true
-        prompt[2].Abbreviation = "~"
-        prompt[2].NameStyle = []color.Attribute{color.FgYellow, color.Bold}
+func getUserHome() []string {
+    usr, err := user.Current()
+    if err != nil {
+        return []string{"non-matching sentinel value", "&\\!`\\\\$'"}
+    } else {
+        // FIXME: it is not always true that a user's home directory is /home/username
+        return []string{"", "home", usr.Username}
     }
 }
+
+func promptStartsWith(prompt Prompt, prefix []string) bool {
+    if len(prefix) > len(prompt) {
+        return false
+    }
+    for i, name := range prefix {
+        if name != prompt[i].Name {
+            return false
+        }
+    }
+    return true
+}
+
+func ShadowHome(prompt Prompt) {
+    home := getUserHome()
+    if promptStartsWith(prompt, home) {
+        for i, _ := range home {
+            prompt[i].Shadowed = true
+        }
+        prompt[len(home) - 1].Abbreviation = "~"
+        prompt[len(home) - 1].NameStyle = []color.Attribute{color.FgYellow, color.Bold}
+    }
+}
+
 func GetCharsToCut(prompt Prompt) int {
     maxLen := GetMaxPromptSize()
     totalChars := 0
@@ -31,6 +56,7 @@ func GetCharsToCut(prompt Prompt) int {
     }
     return charsToCut
 }
+
 func SetAbbreviations(prompt Prompt, charsToCut int) {
     for i := 0; i < len(prompt); i++ {
         if prompt[i].Shadowed || prompt[i].Name == "" {
