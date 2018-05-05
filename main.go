@@ -18,6 +18,10 @@ func main() {
     SetAbbreviations(prompt, charsToCut)
     StylePrompt(prompt, *default_color, *symlink_color, *open_write_color)
     if *bash_hack {
+        // Bash can recognize escape codes in your PS1, but only if they are statically defined
+        // When `prompter` prints them, Bash doesn't realize it has to explain them to GNU Readline
+        // If your cursor jumps around when you scroll through your command history
+        // then there's a bug here.
         fmt.Print(ExplainZeroWidthEscapeCodesToGNUReadline(prompt.Format()))
     } else {
         fmt.Print(prompt.Format())
