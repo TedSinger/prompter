@@ -7,7 +7,7 @@ import (
     "strings"
 )
 
-func getTermSize() (int, int) {
+func GetTermSize() (int, int) {
     cmd := exec.Command("stty", "size")
     cmd.Stdin = os.Stdin
     bytes, _ := cmd.Output()
@@ -19,7 +19,7 @@ func getTermSize() (int, int) {
     return height, width
 }
 
-func getMaxPromptSize() int {
-    _, w := getTermSize()
+func GetMaxPromptSize() int {
+    _, w := GetTermSize()
     return w / 2 - 10
 }

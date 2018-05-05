@@ -9,7 +9,7 @@ import (
     "path/filepath"
 )
 
-func isLink(p string) bool {
+func IsLink(p string) bool {
     lstat, err := os.Lstat(p)
     if err != nil {
         // FIXME: have a debug mode, and only print with it
@@ -20,13 +20,13 @@ func isLink(p string) bool {
     }
 }
 
-func resolvedPath(p string) string {
+func ResolvedPath(p string) string {
     evaled, _ := filepath.EvalSymlinks(p)
     abs, _ := filepath.Abs(evaled)
     return abs
 }
 
-func isOpenWrite(p string) bool {
+func IsOpenWrite(p string) bool {
     lstat, err := os.Stat(p)
     if err != nil {
         // FIXME: have a debug mode, and only print with it
@@ -37,14 +37,14 @@ func isOpenWrite(p string) bool {
     }   
 }
 
-func getMounts() []string {
+func GetMounts() []string {
     cmd := exec.Command("findmnt", "-l", "-o", "TARGET", "-n")
     bytes, _ := cmd.Output()
     text := string(bytes)
     return strings.Split(text, "\n")
 }
 
-func getPathRoot(p string, mounts []string) string {
+func GetPathRoot(p string, mounts []string) string {
     longest := "/"
     longest_size := 1
     for _, m := range mounts {
@@ -56,11 +56,11 @@ func getPathRoot(p string, mounts []string) string {
     return longest
 }
 
-func startsWithUserHome(components []string) bool {
+func StartsWithUserHome(prompt Prompt) bool {
     usr, err := user.Current()
     if err != nil {
         return false
     } else {
-        return components[1] == "home" && len(components) >= 3 && components[2] == usr.Username
+        return prompt[1].Name == "home" && len(prompt) >= 3 && prompt[2].Name == usr.Username
     }
 }

@@ -1,47 +1,63 @@
 package main
 import (
-    "regexp"
     "github.com/fatih/color"
 )
 
-type PathStyle [][]color.Attribute
-
-func wrapWithSOHSTX(escapeCode string) string {
-    return "\x01" + escapeCode + "\x02"
+func shouldBeBold(styles []color.Attribute) bool {
+    badPairs := make([][]color.Attribute, 1)
+    badPairs[0] = []color.Attribute{color.FgBlue, color.BgGreen}
+    if len(styles) != 2 {
+        return true
+    } else {
+        for _, pair := range badPairs {
+            if styles[0] == pair[0] && styles[1] == pair[1] {
+                return false
+            } else if styles[1] == pair[1] && styles[0] == pair[0] {
+                return false
+            }
+        }
+        return true
+    }
 }
 
-func explainZeroWidthEscapeCodesToGNUReadline(prompt string) string {
-    escapeCodeFinder := regexp.MustCompile(`\x1b\[[0-9;]*m`)
-    return escapeCodeFinder.ReplaceAllStringFunc(prompt, wrapWithSOHSTX)
-}
-
-func applyStyles(s string, styles ...color.Attribute) string {
+func ApplyStyles(s string, styles ...color.Attribute) string {
     c := color.New(styles...)
+    if shouldBeBold(styles) {
+        c.Add(color.Bold)    
+    }
     c.EnableColor()
     return c.Sprint(s)
 }
 
-func formatPath(components []string, abbrs []string, pathstyle PathStyle) string {
-    prompt := ""
-    startIndex := 0
-    if startsWithUserHome(components) {
-        prompt = applyStyles("~", color.FgYellow, color.Bold)
-        if len(components) > 3 {
-            prompt += "/"
-        }
-        startIndex = 3
-    }
+func StylePrompt(prompt Prompt, default_color int, symlink_color int, open_write int) {
+    last_fs_root := "/"
+    current_fs_root := "/"
+    proper_path := "/"
+    mounts := GetMounts()
 
-    for i := startIndex; i < len(abbrs); i++ {
-        prompt += applyStyles(abbrs[i], pathstyle[i]...)
-        if i != len(abbrs) - 1 {
-            if abbrs[i] == components[i] {
-                prompt += "/"
+    for i := 1; i < len(prompt); i += 1 {
+        proper_path += prompt[i].Name
+        resolved_path := proper_path
+        style := prompt[i].NameStyle
+
+        if !prompt[i].Shadowed {
+            if IsLink(proper_path) {
+                style = append(style, color.Attribute(symlink_color))
+                resolved_path = ResolvedPath(proper_path)
             } else {
-                prompt += applyStyles("/", color.CrossedOut)
+                style = append(style, color.Attribute(default_color))
+            }
+
+            if IsOpenWrite(proper_path) {
+                style = append(style, color.Attribute(open_write))
             }
         }
+        current_fs_root = GetPathRoot(resolved_path, mounts)
+        if current_fs_root != last_fs_root {
+            style = append(style, color.Underline)
+            last_fs_root = current_fs_root
+        }
+        prompt[i].NameStyle = style
+        proper_path += "/"
     }
-    // FIXME: only do this for bash
-    return explainZeroWidthEscapeCodesToGNUReadline(prompt)
 }
