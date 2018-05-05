@@ -1,7 +1,9 @@
 Use `$(prompter)` as a component of your PS1 in bash. It will print your current working directory, styled to be helpful:
 
-   - `prompter` truncates path components as needed to keep the prompt short
+   - `prompter` truncates path components as needed to keep the prompt short, relative to your terminal width
    - `prompter` highlights symlinks, mountpoints, and open write permissions
+
+![A demonstration of prompter](https://user-images.githubusercontent.com/2722407/39666718-4df08ec8-5076-11e8-8923-ffab51b34696.png)
 
 ```
 Usage of ./prompter:
