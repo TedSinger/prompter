@@ -31,7 +31,7 @@ func InitPrompt() Prompt {
 func (prompt Prompt) Format() string {
     ret := ""
     for idx, part := range prompt {
-        ret += ApplyStyles(part.Abbreviation, part.NameStyle...)
+        ret += ApplyStyles(part.Abbreviation, part.NameStyle...)    
         is_last := idx == len(prompt) - 1
         is_abbrd := (part.Abbreviation != part.Name)
         is_tilde := (part.Abbreviation == "~" && part.Shadowed)

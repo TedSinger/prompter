@@ -33,12 +33,16 @@ func shouldBeBold(styles []color.Attribute) bool {
 }
 
 func ApplyStyles(s string, styles ...color.Attribute) string {
-    c := color.New(styles...)
-    if shouldBeBold(styles) {
-        c.Add(color.Bold)    
+    if s == "" || len(styles) == 0 {
+        return s
+    } else {
+        c := color.New(styles...)
+        if shouldBeBold(styles) {
+            c.Add(color.Bold)    
+        }
+        c.EnableColor()
+        return c.Sprint(s)
     }
-    c.EnableColor()
-    return c.Sprint(s)
 }
 
 func StylePrompt(prompt Prompt, default_color int, symlink_color int, open_write int) {
