@@ -3,21 +3,33 @@ import (
     "github.com/fatih/color"
 )
 
-func shouldBeBold(styles []color.Attribute) bool {
-    badPairs := make([][]color.Attribute, 1)
-    badPairs[0] = []color.Attribute{color.FgBlue, color.BgGreen}
-    if len(styles) != 2 {
-        return true
-    } else {
-        for _, pair := range badPairs {
-            if styles[0] == pair[0] && styles[1] == pair[1] {
-                return false
-            } else if styles[1] == pair[1] && styles[0] == pair[0] {
-                return false
-            }
+func contains(arr []color.Attribute, needle color.Attribute) bool {
+    for _, a := range arr {
+        if needle == a {
+            return true
         }
-        return true
     }
+    return false
+}
+func isSubset(sub []color.Attribute, super []color.Attribute) bool {
+    for _, sb := range sub {
+        if !contains(super, sb) {
+            return false
+        }
+    }
+    return true
+}
+
+func shouldBeBold(styles []color.Attribute) bool {
+    terrible_contrast := make([][]color.Attribute, 1)
+    terrible_contrast[0] = []color.Attribute{color.FgBlue, color.BgGreen}
+
+    for _, pair := range terrible_contrast {
+        if isSubset(pair, styles) {
+            return false
+        }
+    }
+    return true
 }
 
 func ApplyStyles(s string, styles ...color.Attribute) string {

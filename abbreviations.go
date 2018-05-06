@@ -34,7 +34,7 @@ func ShadowHome(prompt Prompt) {
             prompt[i].Shadowed = true
         }
         prompt[len(home) - 1].Abbreviation = "~"
-        prompt[len(home) - 1].NameStyle = []color.Attribute{color.FgYellow, color.Bold}
+        prompt[len(home) - 1].NameStyle = []color.Attribute{color.FgYellow}
     }
 }
 
