@@ -1,56 +1,30 @@
 package main
 
 import (
-    "os"
     "fmt"
-    "strings"
-    "github.com/fatih/color"
+    "flag"
 )
 
-func getStyles(components []string) PathStyle {
-    styles := make(PathStyle, len(components))
-    last_fs_root := "/"
-    current_fs_root := "/"
-    mounts := getMounts()
-
-    for i := 1; i < len(components); i += 1 {
-        proper_path := strings.Join(components[:i+1], "/")
-        resolved_path := proper_path
-        styles[i] = make([]color.Attribute, 0, 4)
-
-        // FIXME: use LSCOLORS instead of hardcoding
-        if isLink(proper_path) {
-            styles[i] = append(styles[i], color.FgHiCyan, color.Bold)
-            resolved_path = resolvedPath(proper_path)
-        } else {
-            styles[i] = append(styles[i], color.FgBlue)
-
-        }
-        
-        if isOpenWrite(proper_path) {
-            styles[i] = append(styles[i], color.BgGreen)
-        } else {
-            styles[i] = append(styles[i], color.Bold)
-        }
-
-        current_fs_root = getPathRoot(resolved_path, mounts)
-        if current_fs_root != last_fs_root {
-            styles[i] = append(styles[i], color.Underline)
-            last_fs_root = current_fs_root
-        }
-    }
-    return styles
-}
-
-func getPrompt(components []string) string {
-    maxLen := getMaxPromptSize()
-    abbrs := getAbbreviations(components, maxLen)
-    styles := getStyles(components)
-    return applyStyle(abbrs, styles)
-}
-
 func main() {
-    path, _ := os.Getwd()
-    components := strings.Split(path, "/")
-    fmt.Print(getPrompt(components))
+    bash_hack := flag.Bool("bash-readline-hack", true, "Wraps escape codes in \\x01 and \\x02, so that GNU Readline understands that they have no width")
+    default_color := flag.Int("default", 34, "color for normal directories (default blue)")
+    symlink_color := flag.Int("symlink", 36, "color for symlinks (default cyan)")
+    open_write_color := flag.Int("open-write", 42, "color open write permissions (default green background)")
+    flag.Parse()
+
+    prompt := InitPrompt()
+    ShadowHome(prompt)
+    charsToCut := GetCharsToCut(prompt)
+    SetAbbreviations(prompt, charsToCut)
+    StylePrompt(prompt, *default_color, *symlink_color, *open_write_color)
+    if *bash_hack {
+        // Bash can recognize escape codes in your PS1, but only if they are statically defined
+        // When `prompter` prints them, Bash doesn't realize it has to explain them to GNU Readline
+        // If your cursor jumps around when you scroll through your command history
+        // then there's a bug here.
+        fmt.Print(ExplainZeroWidthEscapeCodesToGNUReadline(prompt.Format()))
+    } else {
+        fmt.Print(prompt.Format())
+    }
+    
 }

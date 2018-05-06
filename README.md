@@ -1,14 +1,22 @@
-Use `prompter` as a component of your PS1 in bash. It will print your current working directory, styled to be helpful:
+Use `$(prompter)` as a component of your PS1 in the shell. It will print your current working directory, styled to be helpful:
 
-   - If the length of your working directory approaches half of your terminal width, earlier parts of the path are truncated
-   - Symlinks are in cyan, just like `ls --color`
-   - Directories with open write permissions have a green background, just like `ls --color`
-   - Mountpoints and cross-device symlinks are underlined
+   - `prompter` truncates path components as needed to keep the prompt short, relative to your terminal width
+   - `prompter` highlights symlinks, mountpoints, and open write permissions
 
-Note that if you execute `prompter` outside of your PS1 variable, it will appear to print extra escape codes. These are necessary to compensate for a... miscommunication between bash and GNU readline.
+![A demonstration of prompter](https://user-images.githubusercontent.com/2722407/39666718-4df08ec8-5076-11e8-8923-ffab51b34696.png)
+
+```
+Usage of ./prompter:
+  -bash-readline-hack
+        Wraps escape codes in \x01 and \x02, so that GNU Readline understands that they have no width (default true)
+  -default int
+        color for normal directories (default blue) (default 34)
+  -open-write int
+        color open write permissions (default green background) (default 42)
+  -symlink int
+        color for symlinks (default cyan) (default 36)
+```
 
 TODO:
-
-   - Work in shells besides bash
-   - Allow styles to be configured through flags
-   - Get default styles from LSCOLORS, rather than hardcoding the common LSCOLORS
+   - Get default styles from LSCOLORS, rather than hardcoding the common ones
+   - Get user home directory in a general way, instead of assuming /home/username
