@@ -42,11 +42,11 @@ func ShadowHome(prompt Prompt) {
 func GetCharsToCut(prompt Prompt) int {
     maxLen := GetMaxPromptSize()
     totalChars := 0
-    for i := 0; i < len(prompt); i++ {
-        if prompt[i].Shadowed {
-            totalChars += len(prompt[i].Abbreviation)
+    for _, part := range prompt {
+        if part.Shadowed {
+            totalChars += len(part.Abbreviation)
         } else {
-            totalChars += 1 + len(prompt[i].Name)
+            totalChars += 1 + len(part.Name)
         }
     }
     var charsToCut int
@@ -109,14 +109,14 @@ func (msh MaxSizeHolder) TargetSize() int {
 }
 
 func SetAbbreviations(prompt Prompt, maxSizes MaxSizeHolder) {
-    for i := 0; i < len(prompt); i++ {
-        if maxSizes.nMaxSize > 0 && len(prompt[i].Abbreviation) == maxSizes.maxSize {
+    for _, part := range prompt {
+        if maxSizes.nMaxSize > 0 && len(part.Abbreviation) == maxSizes.maxSize {
             maxSizes.nMaxSize -= 1
-        } else if maxSizes.nOneLess > 0 && len(prompt[i].Abbreviation) == maxSizes.maxSize - 1 {
+        } else if maxSizes.nOneLess > 0 && len(part.Abbreviation) == maxSizes.maxSize - 1 {
             maxSizes.nOneLess -= 1
-        } else if len(prompt[i].Abbreviation) > maxSizes.TargetSize() {
-            prompt[i].Abbreviation = prompt[i].Abbreviation[:maxSizes.TargetSize()]
-            prompt[i].SlashStyle = []color.Attribute{color.CrossedOut}
+        } else if len(part.Abbreviation) > maxSizes.TargetSize() {
+            part.Abbreviation = part.Abbreviation[:maxSizes.TargetSize()]
+            part.SlashStyle = []color.Attribute{color.CrossedOut}
             maxSizes.Decrement()
         }
     }
