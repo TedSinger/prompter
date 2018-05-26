@@ -32,6 +32,7 @@ func ShadowHome(prompt Prompt) {
     if promptStartsWith(prompt, home) {
         for i, _ := range home {
             prompt[i].Shadowed = true
+            prompt[i].Abbreviation = ""
         }
         prompt[len(home) - 1].Abbreviation = "~"
         prompt[len(home) - 1].NameStyle = []color.Attribute{color.FgYellow}
@@ -57,20 +58,66 @@ func GetCharsToCut(prompt Prompt) int {
     return charsToCut
 }
 
-func SetAbbreviations(prompt Prompt, charsToCut int) {
-    for i := 0; i < len(prompt); i++ {
-        if prompt[i].Shadowed || prompt[i].Name == "" {
-            continue
-        } else if charsToCut >= len(prompt[i].Name) - 1 {
-            prompt[i].Abbreviation = prompt[i].Name[:1]
-            prompt[i].SlashStyle = []color.Attribute{color.CrossedOut}
-            charsToCut -= len(prompt[i].Name) - 1
-        } else if charsToCut > 0 {
-            prompt[i].Abbreviation = prompt[i].Name[:len(prompt[i].Name) - charsToCut]
-            prompt[i].SlashStyle = []color.Attribute{color.CrossedOut}
-            charsToCut = 0
+type MaxSizeHolder struct {
+    maxSize int
+    nMaxSize int
+    nOneLess int
+}
+
+func GetTargetMaxSize(prompt Prompt, charsToCut int) MaxSizeHolder {
+    sizeCounts := make(map[int]int)
+    maxSize := 0
+    for _, part := range prompt {
+        sizeCounts[len(part.Abbreviation)] += 1
+        if len(part.Abbreviation) > maxSize {
+            maxSize = len(part.Abbreviation)
+        }
+    }
+    ret := MaxSizeHolder{
+        maxSize,
+        sizeCounts[maxSize],
+        sizeCounts[maxSize - 1],
+    }
+    for charsToCut > 0 && ret.maxSize > 1 {
+        if ret.nMaxSize == 1 {
+            ret.maxSize -= 1
+            ret.nMaxSize = ret.nOneLess + 1
+            ret.nOneLess = sizeCounts[ret.maxSize]
         } else {
-            prompt[i].Abbreviation = prompt[i].Name
+            ret.nMaxSize -= 1
+            ret.nOneLess += 1
+        }
+        charsToCut -= 1
+    }
+    return ret
+}
+
+func (msh *MaxSizeHolder) Decrement() {
+    if msh.nOneLess > 0 {
+        msh.nOneLess -= 1
+    } else {
+        msh.nMaxSize -= 1
+    }
+}
+
+func (msh MaxSizeHolder) TargetSize() int {
+    if msh.nOneLess > 0 {
+        return msh.maxSize - 1
+    } else {
+        return msh.maxSize
+    }
+}
+
+func SetAbbreviations(prompt Prompt, maxSizes MaxSizeHolder) {
+    for i := 0; i < len(prompt); i++ {
+        if maxSizes.nMaxSize > 0 && len(prompt[i].Abbreviation) == maxSizes.maxSize {
+            maxSizes.nMaxSize -= 1
+        } else if maxSizes.nOneLess > 0 && len(prompt[i].Abbreviation) == maxSizes.maxSize - 1 {
+            maxSizes.nOneLess -= 1
+        } else if len(prompt[i].Abbreviation) > maxSizes.TargetSize() {
+            prompt[i].Abbreviation = prompt[i].Abbreviation[:maxSizes.TargetSize()]
+            prompt[i].SlashStyle = []color.Attribute{color.CrossedOut}
+            maxSizes.Decrement()
         }
     }
 }

@@ -15,7 +15,8 @@ func main() {
     prompt := InitPrompt()
     ShadowHome(prompt)
     charsToCut := GetCharsToCut(prompt)
-    SetAbbreviations(prompt, charsToCut)
+    maxSize := GetTargetMaxSize(prompt, charsToCut)
+    SetAbbreviations(prompt, maxSize)
     StylePrompt(prompt, *default_color, *symlink_color, *open_write_color)
     if *bash_hack {
         // Bash can recognize escape codes in your PS1, but only if they are statically defined
