@@ -19,7 +19,7 @@ func GetTermSize() (int, int) {
     return height, width
 }
 
-func GetMaxPromptSize() int {
+func GetMaxPromptSize(sizeBuffer int) int {
     _, w := GetTermSize()
-    return w / 2 - 10
+    return w / 2 - sizeBuffer
 }

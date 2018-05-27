@@ -39,8 +39,7 @@ func ShadowHome(prompt Prompt) {
     }
 }
 
-func GetCharsToCut(prompt Prompt) int {
-    maxLen := GetMaxPromptSize()
+func GetCharsToCut(prompt Prompt, maxSize int) int {
     totalChars := 0
     for _, part := range prompt {
         if part.Shadowed {
@@ -50,8 +49,8 @@ func GetCharsToCut(prompt Prompt) int {
         }
     }
     var charsToCut int
-    if totalChars > maxLen {
-        charsToCut = totalChars - maxLen
+    if totalChars > maxSize {
+        charsToCut = totalChars - maxSize
     } else {
         charsToCut = 0
     }
