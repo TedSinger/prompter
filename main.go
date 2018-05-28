@@ -28,6 +28,5 @@ func main() {
         fmt.Print(ExplainZeroWidthEscapeCodesToGNUReadline(prompt.Format()))
     } else {
         fmt.Print(prompt.Format())
-    }
-    
+    }    
 }

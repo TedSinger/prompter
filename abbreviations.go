@@ -42,10 +42,9 @@ func ShadowHome(prompt Prompt) {
 func GetCharsToCut(prompt Prompt, maxSize int) int {
     totalChars := 0
     for _, part := range prompt {
-        if part.Shadowed {
-            totalChars += len(part.Abbreviation)
-        } else {
-            totalChars += 1 + len(part.Name)
+        totalChars += len(part.Abbreviation)
+        if !part.Shadowed {
+            totalChars += 1
         }
     }
     var charsToCut int
@@ -63,7 +62,7 @@ type MaxSizeHolder struct {
     nOneLess int
 }
 
-func GetTargetMaxSize(prompt Prompt, charsToCut int) MaxSizeHolder {
+func getSizeCounts(prompt Prompt) (map[int]int, int) {
     sizeCounts := make(map[int]int)
     maxSize := 0
     for _, part := range prompt {
@@ -72,23 +71,32 @@ func GetTargetMaxSize(prompt Prompt, charsToCut int) MaxSizeHolder {
             maxSize = len(part.Abbreviation)
         }
     }
+    return sizeCounts, maxSize
+}
+
+func getMaxSizeHolder(sizeCounts map[int]int, maxSize, charsToCut int) MaxSizeHolder {
     ret := MaxSizeHolder{
         maxSize,
         sizeCounts[maxSize],
         sizeCounts[maxSize - 1],
     }
     for charsToCut > 0 && ret.maxSize > 1 {
-        if ret.nMaxSize == 1 {
+        if ret.nMaxSize == 0 {
             ret.maxSize -= 1
-            ret.nMaxSize = ret.nOneLess + 1
-            ret.nOneLess = sizeCounts[ret.maxSize]
+            ret.nMaxSize = ret.nOneLess
+            ret.nOneLess = sizeCounts[ret.maxSize - 1]
         } else {
             ret.nMaxSize -= 1
             ret.nOneLess += 1
+            charsToCut -= 1
         }
-        charsToCut -= 1
     }
     return ret
+}
+
+func GetTargetMaxSize(prompt Prompt, charsToCut int) MaxSizeHolder {
+    sizeCounts, maxSize := getSizeCounts(prompt)
+    return getMaxSizeHolder(sizeCounts, maxSize, charsToCut)
 }
 
 func (msh *MaxSizeHolder) Decrement() {
