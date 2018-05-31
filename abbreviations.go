@@ -56,7 +56,7 @@ func GetCharsToCut(prompt Prompt, maxSize int) int {
     return charsToCut
 }
 
-type MaxSizeHolder struct {
+type TruncationTarget struct {
     maxSize int
     nMaxSize int
     nOneLess int
@@ -74,8 +74,8 @@ func getSizeCounts(prompt Prompt) (map[int]int, int) {
     return sizeCounts, maxSize
 }
 
-func getMaxSizeHolder(sizeCounts map[int]int, maxSize, charsToCut int) MaxSizeHolder {
-    ret := MaxSizeHolder{
+func getTruncationTarget(sizeCounts map[int]int, maxSize, charsToCut int) TruncationTarget {
+    ret := TruncationTarget{
         maxSize,
         sizeCounts[maxSize],
         sizeCounts[maxSize - 1],
@@ -94,37 +94,37 @@ func getMaxSizeHolder(sizeCounts map[int]int, maxSize, charsToCut int) MaxSizeHo
     return ret
 }
 
-func GetTargetMaxSize(prompt Prompt, charsToCut int) MaxSizeHolder {
+func GetTruncationTarget(prompt Prompt, charsToCut int) TruncationTarget {
     sizeCounts, maxSize := getSizeCounts(prompt)
-    return getMaxSizeHolder(sizeCounts, maxSize, charsToCut)
+    return getTruncationTarget(sizeCounts, maxSize, charsToCut)
 }
 
-func (msh *MaxSizeHolder) Decrement() {
-    if msh.nOneLess > 0 {
-        msh.nOneLess -= 1
+func (tt *TruncationTarget) Decrement() {
+    if tt.nOneLess > 0 {
+        tt.nOneLess -= 1
     } else {
-        msh.nMaxSize -= 1
+        tt.nMaxSize -= 1
     }
 }
 
-func (msh MaxSizeHolder) TargetSize() int {
-    if msh.nOneLess > 0 {
-        return msh.maxSize - 1
+func (tt TruncationTarget) TargetSize() int {
+    if tt.nOneLess > 0 {
+        return tt.maxSize - 1
     } else {
-        return msh.maxSize
+        return tt.maxSize
     }
 }
 
-func SetAbbreviations(prompt Prompt, maxSizes MaxSizeHolder) {
+func SetAbbreviations(prompt Prompt, tt TruncationTarget) {
     for _, part := range prompt {
-        if maxSizes.nMaxSize > 0 && len(part.Abbreviation) == maxSizes.maxSize {
-            maxSizes.nMaxSize -= 1
-        } else if maxSizes.nOneLess > 0 && len(part.Abbreviation) == maxSizes.maxSize - 1 {
-            maxSizes.nOneLess -= 1
-        } else if len(part.Abbreviation) > maxSizes.TargetSize() {
-            part.Abbreviation = part.Abbreviation[:maxSizes.TargetSize()]
+        if tt.nMaxSize > 0 && len(part.Abbreviation) == tt.maxSize {
+            tt.nMaxSize -= 1
+        } else if tt.nOneLess > 0 && len(part.Abbreviation) == tt.maxSize - 1 {
+            tt.nOneLess -= 1
+        } else if len(part.Abbreviation) > tt.TargetSize() {
+            part.Abbreviation = part.Abbreviation[:tt.TargetSize()]
             part.SlashStyle = []color.Attribute{color.CrossedOut}
-            maxSizes.Decrement()
+            tt.Decrement()
         }
     }
 }
