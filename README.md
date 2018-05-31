@@ -3,7 +3,7 @@ Use `$(prompter)` as a component of your PS1 in the shell. It will print your cu
    - `prompter` truncates path components as needed to keep the prompt short, relative to your terminal width
    - `prompter` highlights symlinks, mountpoints, and open write permissions
 
-![A demonstration of prompter](https://user-images.githubusercontent.com/2722407/39666718-4df08ec8-5076-11e8-8923-ffab51b34696.png)
+![A demonstration of prompter](https://user-images.githubusercontent.com/2722407/40755345-1853c926-644c-11e8-91ed-d8f076defa89.png)
 
 ```
 Usage of ./prompter:
