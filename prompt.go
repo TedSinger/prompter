@@ -13,17 +13,18 @@ type Part struct {
     Shadowed bool
 }
 
-type Prompt []Part
+type Prompt []*Part
 
 func InitPrompt() Prompt {
     path, _ := os.Getwd()
     components := strings.Split(path, "/")
-    prompt := make([]Part, len(components))
+    prompt := make([]*Part, len(components))
     for i, _ := range prompt {
         part := Part{}
         part.Name = components[i]
+        part.Abbreviation = components[i]
         part.NameStyle = make([]color.Attribute, 0, 4)
-        prompt[i] = part
+        prompt[i] = &part
     }
     return prompt
 }
