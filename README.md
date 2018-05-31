@@ -8,13 +8,15 @@ Use `$(prompter)` as a component of your PS1 in the shell. It will print your cu
 ```
 Usage of ./prompter:
   -bash-readline-hack
-        Wraps escape codes in \x01 and \x02, so that GNU Readline understands that they have no width (default true)
+      Wraps escape codes in \x01 and \x02, so that GNU Readline understands that they have no width (default true)
   -default int
-        color for normal directories (default blue) (default 34)
+      color for normal directories (ANSI escape codes) (default 34)
   -open-write int
-        color open write permissions (default green background) (default 42)
+      color open write permissions (default 42)
+  -size-buffer int
+      how much extra space to leave between the end of the prompt and the middle of the screen (default 10)
   -symlink int
-        color for symlinks (default cyan) (default 36)
+      color for symlinks (default 36)
 ```
 
 TODO:
