@@ -48,32 +48,31 @@ func ApplyStyles(s string, styles ...color.Attribute) string {
 func StylePrompt(prompt Prompt, default_color int, symlink_color int, open_write int) {
     last_fs_root := "/"
     current_fs_root := "/"
-    proper_path := "/"
+    path := "/"
     mounts := GetMounts()
 
     for i := 1; i < len(prompt); i += 1 {
-        proper_path += prompt[i].Name
-        resolved_path := proper_path
+        path += prompt[i].Name
         style := prompt[i].NameStyle
 
         if !prompt[i].Shadowed {
-            if IsLink(proper_path) {
+            if IsLink(path) {
                 style = append(style, color.Attribute(symlink_color))
-                resolved_path = ResolvedPath(proper_path)
+                path = ResolvedPath(path)
             } else {
                 style = append(style, color.Attribute(default_color))
             }
 
-            if IsOpenWrite(proper_path) {
+            if IsOpenWrite(path) {
                 style = append(style, color.Attribute(open_write))
             }
         }
-        current_fs_root = GetPathRoot(resolved_path, mounts)
+        current_fs_root = GetPathRoot(path, mounts)
         if current_fs_root != last_fs_root {
             style = append(style, color.Underline)
             last_fs_root = current_fs_root
         }
         prompt[i].NameStyle = style
-        proper_path += "/"
+        path += "/"
     }
 }
