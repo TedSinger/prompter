@@ -38,10 +38,14 @@ func (prompt Prompt) Format() string {
         is_tilde := (part.Abbreviation == "~" && part.Shadowed)
         if is_last {
             if is_abbrd && !is_tilde {
-                ret += ApplyStyles("/", part.SlashStyle...)
+                ret += ApplyStyles("\\", part.SlashStyle...)
             }
         } else if !part.Shadowed || is_tilde {
-            ret += ApplyStyles("/", part.SlashStyle...)
+            sep := "/"
+            if is_abbrd && !is_tilde {
+                sep = "\\"
+            }
+            ret += ApplyStyles(sep, part.SlashStyle...)
         }
     }
     return ret
